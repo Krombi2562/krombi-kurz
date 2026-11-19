@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jak vydělat milion za týden – By Krombi25</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  /* ===== NASTAVENÍ – sem vlož své klíče z EmailJS ===== */
+  const EMAILJS_PUBLIC_KEY  = "Dec-QdE-LmyejTlP_";
+  const EMAILJS_SERVICE_ID  = "service_lv3ln5r";
+  const EMAILJS_TEMPLATE_ID = "template_xvrlfcx";
+  const PLATNOST_KODU_MIN   = 10;
+</script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at 20% 0%, #2b2f77 0%, #11132e 55%, #07081a 100%) fixed;
+    color: #fff;
+    padding: 30px 16px 60px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  /* Hlavička kurzu – viditelná vždy */
+  .hero { text-align: center; padding: 30px 10px 26px; }
+  .hero .tag {
+    display: inline-block; padding: 6px 14px; border-radius: 999px; font-size: 13px;
+    background: rgba(255,210,123,0.15); color: #ffd27b; margin-bottom: 14px;
+  }
+  .hero h1 { font-size: clamp(28px, 6vw, 44px); line-height: 1.15; margin-bottom: 10px; }
+  .hero p { color: #b8bbe6; font-size: 17px; }
+  .hero p b { color: #fff; }
+  .stats { display: flex; justify-content: center; gap: 22px; margin-top: 18px; flex-wrap: wrap; color: #9fa3d9; font-size: 14px; }
+
+  /* Lekce */
+  .lekce {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px; padding: 24px; margin-bottom: 16px; position: relative; overflow: hidden;
+  }
+  .lekce h2 { font-size: 20px; margin-bottom: 12px; }
+  .lekce p { color: rgba(255,255,255,0.82); line-height: 1.65; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .tile { background: rgba(0,0,0,0.25); border-radius: 12px; padding: 16px; }
+  .tile b { display: block; margin-bottom: 5px; }
+  .tile span { color: rgba(255,255,255,0.65); font-size: 14px; line-height: 1.5; }
+
+  /* Zamčený text */
+  .text { transition: filter .5s; }
+  body.zamceno .text { filter: blur(7px); user-select: none; pointer-events: none; }
+  .zamek {
+    position: absolute; inset: 56px 0 0 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  body:not(.zamceno) .zamek { display: none; }
+  .zamek button { width: auto; margin: 0; padding: 12px 22px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+
+  button {
+    width: 100%; margin-top: 14px; padding: 14px; font-size: 16px; font-weight: 600;
+    border: none; border-radius: 12px; cursor: pointer; color: #fff;
+    background: linear-gradient(135deg, #6c63ff, #3ec6ff);
+    transition: transform .1s, opacity .2s;
+  }
+  button:hover { transform: translateY(-1px); }
+  button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .link { background: none; color: rgba(255,255,255,0.7); font-weight: 400; font-size: 14px; margin-top: 8px; padding: 6px; }
+  .link:hover { color: #fff; }
+
+  .odemceno-info { text-align: center; color: #7bffb0; font-size: 14px; margin-bottom: 16px; }
+  body.zamceno .odemceno-info { display: none; }
+
+  /* Okno pro ověření */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(5,6,20,0.75); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10;
+  }
+  .card {
+    width: 100%; max-width: 400px; background: #1c1f4a; border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px; padding: 32px 26px; text-align: center; position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); animation: in .3s ease;
+  }
+  @keyframes in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+  .zavrit { position: absolute; top: 10px; right: 14px; background: none; width: auto; margin: 0; padding: 4px 8px; font-size: 22px; color: #9fa3d9; }
+  .icon { width: 60px; height: 60px; margin: 0 auto 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; background: linear-gradient(135deg, #6c63ff, #3ec6ff); }
+  .card h3 { font-size: 22px; margin-bottom: 8px; }
+  .card p.sub { color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.5; margin-bottom: 20px; }
+  input[type=email] {
+    width: 100%; padding: 14px 16px; font-size: 16px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.25); color: #fff; outline: none;
+  }
+  input[type=email]:focus, .digits input:focus { border-color: #6c63ff; box-shadow: 0 0 0 3px rgba(108,99,255,0.35); }
+  .digits { display: flex; gap: 7px; justify-content: center; }
+  .digits input {
+    width: 46px; height: 56px; text-align: center; font-size: 24px; font-weight: 700;
+    border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.25); color: #fff; outline: none;
+  }
+  .msg { min-height: 20px; margin-top: 12px; font-size: 14px; }
+  .msg.err { color: #ff7b7b; }
+  .msg.ok { color: #7bffb0; }
+  .shake { animation: shake .35s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+  .hidden { display: none !important; }
+  .footer { text-align: center; color: #6e72a8; font-size: 13px; margin-top: 30px; }
+</style>
+</head>
+<body class="zamceno">
+
+<div class="wrap">
+  <!-- ===== HLAVIČKA (vidí každý) ===== -->
+  <div class="hero">
+    <span class="tag">⭐ Prémiový kurz</span>
+    <h1>💰 Jak vydělat milion za týden</h1>
+    <p>Kurz <b>By Krombi25</b></p>
+    <div class="stats"><span>📚 3 lekce</span><span>⏱️ 5 minut čtení</span><span>🔒 Zdarma po ověření</span></div>
+  </div>
+
+  <div class="odemceno-info">✓ Odemčeno pro <b id="email-vitej"></b></div>
+
+  <!-- ===== LEKCE 1 ===== -->
+  <div class="lekce">
+    <h2>📘 Lekce 1: Pravda na začátek</h2>
+    <div class="text">
+      <p>Milion za týden? Upřímně… to nedokáže skoro nikdo. Kdo ti to slibuje (a chce za to peníze), tě skoro jistě chce oškubat. Takže první lekce je nejcennější: <b>nevěř nikomu, kdo slibuje rychlé bohatství.</b> Ani Krombimu 😎</p>
+    </div>
+    <div class="zamek"><button class="otevri">🔒 Odemknout kurz</button></div>
+  </div>
+
+  <!-- ===== LEKCE 2 ===== -->
+  <div class="lekce">
+    <h2>📗 Lekce 2: Co funguje doopravdy</h2>
+    <div class="text">
+      <div class="grid">
+        <div class="tile"><b>🧠 Nauč se něco</b><span>Programování, střih videa, design. Dovednosti se platí nejlíp.</span></div>
+        <div class="tile"><b>🛠️ Dělej projekty</b><span>Weby, hry, videa. Ukaž, co umíš, a lidi si tě najdou.</span></div>
+        <div class="tile"><b>💸 Odkládej peníze</b><span>Každý měsíc kus stranou. Malé částky dlouho rostou.</span></div>
+        <div class="tile"><b>⏳ Buď trpělivý</b><span>Milion se dělá spíš za roky než za týden.</span></div>
+      </div>
+    </div>
+    <div class="zamek"><button class="otevri">🔒 Odemknout kurz</button></div>
+  </div>
+
+  <!-- ===== LEKCE 3 ===== -->
+  <div class="lekce">
+    <h2>📙 Lekce 3: Týdenní plán</h2>
+    <div class="text">
+      <p>
+        <b>Pondělí:</b> Vyber si jednu věc, co tě baví a dá se prodat.<br>
+        <b>Úterý–čtvrtek:</b> Uč se a zkoušej to.<br>
+        <b>Pátek:</b> Ukaž výsledek světu (Instagram, YouTube, kamarádi).<br>
+        <b>Víkend:</b> Odpočiň si. Rozbitý mozek peníze nevydělá.<br>
+        <b>Opakuj:</b> přibližně 520× 😄
+      </p>
+    </div>
+    <div class="zamek"><button class="otevri">🔒 Odemknout kurz</button></div>
+  </div>
+
+  <!-- ===== SHRNUTÍ ===== -->
+  <div class="lekce" style="background:linear-gradient(135deg,rgba(108,99,255,.25),rgba(62,198,255,.15));">
+    <h2>🏆 Shrnutí</h2>
+    <div class="text">
+      <p>Tajemství bohatství je, že žádné tajemství není. Uč se, makej, šetři a buď trpělivý. Hodně štěstí! — Krombi25</p>
+    </div>
+    <div class="zamek"><button class="otevri">🔒 Odemknout kurz</button></div>
+  </div>
+
+  <div class="footer">© Krombi25 · <button class="link hidden" id="btn-odhlasit" style="width:auto;display:inline;">Zamknout znovu</button></div>
+</div>
+
+<!-- ===== OKNO: OVĚŘENÍ ===== -->
+<div class="overlay hidden" id="overlay">
+  <!-- krok 1: e-mail -->
+  <div class="card" id="krok-email">
+    <button class="zavrit" data-zavrit>×</button>
+    <div class="icon">🔒</div>
+    <h3>Odemkni celý kurz</h3>
+    <p class="sub">Zadej svůj e-mail a pošleme ti ověřovací kód. Je to zdarma.</p>
+    <form id="form-email">
+      <input type="email" id="email" placeholder="tvuj@email.cz" required autocomplete="email">
+      <button type="submit" id="btn-poslat">Poslat kód</button>
+    </form>
+    <div class="msg" id="msg-email"></div>
+  </div>
+
+  <!-- krok 2: kód -->
+  <div class="card hidden" id="krok-kod">
+    <button class="zavrit" data-zavrit>×</button>
+    <div class="icon">✉️</div>
+    <h3>Zkontroluj e-mail</h3>
+    <p class="sub">Poslali jsme 6místný kód na<br><b id="email-zobraz"></b></p>
+    <form id="form-kod">
+      <div class="digits" id="digits">
+        <input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1">
+        <input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1">
+      </div>
+      <button type="submit">Odemknout</button>
+    </form>
+    <button class="link" id="btn-znovu">Poslat kód znovu</button>
+    <button class="link" id="btn-zpet">← Změnit e-mail</button>
+    <div class="msg" id="msg-kod"></div>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const nastaveno = !EMAILJS_PUBLIC_KEY.startsWith("SEM_");
+  let kod = null, platiDo = 0, email = "", timer = null;
+
+  if (nastaveno && window.emailjs) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+  function zprava(el, text, typ) { el.textContent = text; el.className = "msg " + (typ || ""); }
+  function zatresti(el) { el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+  function novyKod() { const a = new Uint32Array(1); crypto.getRandomValues(a); return String(a[0] % 1000000).padStart(6, "0"); }
+  function krok(id) { ["krok-email", "krok-kod"].forEach(x => $(x).classList.toggle("hidden", x !== id)); }
+
+  // Otevření / zavření okna
+  document.querySelectorAll(".otevri").forEach(b => b.addEventListener("click", () => {
+    $("overlay").classList.remove("hidden"); krok("krok-email"); zprava($("msg-email"), "");
+    setTimeout(() => $("email").focus(), 50);
+  }));
+  document.querySelectorAll("[data-zavrit]").forEach(b => b.addEventListener("click", () => $("overlay").classList.add("hidden")));
+  $("overlay").addEventListener("click", e => { if (e.target.id === "overlay") $("overlay").classList.add("hidden"); });
+
+  async function posliKod() {
+    kod = novyKod();
+    platiDo = Date.now() + PLATNOST_KODU_MIN * 60000;
+    if (!nastaveno) return { demo: true };
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { to_email: email, passcode: kod, minutes: PLATNOST_KODU_MIN });
+    return { demo: false };
+  }
+
+  function cooldown() {
+    let s = 30; const b = $("btn-znovu"); b.disabled = true; clearInterval(timer);
+    b.textContent = `Poslat znovu (${s} s)`;
+    timer = setInterval(() => {
+      s--; b.textContent = s > 0 ? `Poslat znovu (${s} s)` : "Poslat kód znovu";
+      if (s <= 0) { clearInterval(timer); b.disabled = false; }
+    }, 1000);
+  }
+
+  // Krok 1 – e-mail
+  $("form-email").addEventListener("submit", async e => {
+    e.preventDefault();
+    email = $("email").value.trim();
+    const btn = $("btn-poslat"); btn.disabled = true; btn.textContent = "Posílám…";
+    zprava($("msg-email"), "");
+    try {
+      const r = await posliKod();
+      $("email-zobraz").textContent = email;
+      krok("krok-kod"); vycisti(); cooldown();
+      zprava($("msg-kod"), r.demo ? `DEMO režim (EmailJS není nastavené) – kód: ${kod}` : "", r.demo ? "ok" : "");
+    } catch (err) {
+      console.error(err);
+      zprava($("msg-email"), "Chyba: " + (err.text || err.message || JSON.stringify(err)), "err");
+    } finally { btn.disabled = false; btn.textContent = "Poslat kód"; }
+  });
+
+  // Políčka pro kód
+  const pol = [...document.querySelectorAll("#digits input")];
+  function vycisti() { pol.forEach(p => p.value = ""); setTimeout(() => pol[0].focus(), 50); }
+  pol.forEach((p, i) => {
+    p.addEventListener("input", () => {
+      p.value = p.value.replace(/\D/g, "").slice(-1);
+      if (p.value && i < 5) pol[i + 1].focus();
+      if (pol.every(x => x.value)) $("form-kod").requestSubmit();
+    });
+    p.addEventListener("keydown", e => { if (e.key === "Backspace" && !p.value && i > 0) pol[i - 1].focus(); });
+    p.addEventListener("paste", e => {
+      const t = (e.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, 6);
+      if (!t) return; e.preventDefault();
+      t.split("").forEach((c, j) => { if (pol[j]) pol[j].value = c; });
+      pol[Math.min(t.length, 5)].focus();
+      if (t.length === 6) $("form-kod").requestSubmit();
+    });
+  });
+
+  // Krok 2 – ověření kódu
+  $("form-kod").addEventListener("submit", e => {
+    e.preventDefault();
+    const z = pol.map(p => p.value).join("");
+    if (z.length < 6) return zprava($("msg-kod"), "Zadej všech 6 číslic.", "err");
+    if (!kod || Date.now() > platiDo) { zatresti($("digits")); return zprava($("msg-kod"), "Kód vypršel. Pošli si nový.", "err"); }
+    if (z !== kod) { zatresti($("digits")); vycisti(); return zprava($("msg-kod"), "Špatný kód, zkus to znovu.", "err"); }
+    kod = null;
+    try { sessionStorage.setItem("odemceno", email); } catch (_) {}
+    odemkni();
+  });
+
+  $("btn-znovu").addEventListener("click", async () => {
+    try { const r = await posliKod(); vycisti(); cooldown(); zprava($("msg-kod"), r.demo ? `DEMO – nový kód: ${kod}` : "Nový kód odeslán.", "ok"); }
+    catch (err) { zprava($("msg-kod"), "Chyba: " + (err.text || err.message), "err"); }
+  });
+  $("btn-zpet").addEventListener("click", () => { kod = null; krok("krok-email"); });
+
+  function odemkni() {
+    $("email-vitej").textContent = email;
+    document.body.classList.remove("zamceno");
+    $("overlay").classList.add("hidden");
+    $("btn-odhlasit").classList.remove("hidden");
+  }
+  $("btn-odhlasit").addEventListener("click", () => {
+    try { sessionStorage.removeItem("odemceno"); } catch (_) {}
+    document.body.classList.add("zamceno"); $("btn-odhlasit").classList.add("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  try { const u = sessionStorage.getItem("odemceno"); if (u) { email = u; odemkni(); } } catch (_) {}
+</script>
+</body>
+</html>
